@@ -7,7 +7,7 @@ let fs = require('fs')
 
 let submitCurl = fs.readFileSync('./scripts/submit.sh', 'utf8')
   , checkCurl = fs.readFileSync('./scripts/check.sh', 'utf8')
-  , INTERVAL = 1000 * 60 * 10
+  , INTERVAL = 1000 * 60 * 1
 
 execCurl()
 setInterval(execCurl, INTERVAL)
