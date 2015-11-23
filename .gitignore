@@ -1,0 +1,9 @@
+# vscode config
+.vscode
+
+# npm
+node_modules
+npm-debug.log
+
+# mongodb
+data
