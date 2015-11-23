@@ -7,29 +7,35 @@ let fs = require('fs')
 
 let submitCurl = fs.readFileSync('./scripts/submit.sh', 'utf8')
   , checkCurl = fs.readFileSync('./scripts/check.sh', 'utf8')
+  , INTERVAL = 1000 * 60 * 10
+
+execCurl()
+setInterval(execCurl, INTERVAL)
 
 // execute curl program
-exec(submitCurl, function (err, result, code) {
-  if (err instanceof Error) throw err;
-  let res = JSON.parse(result)
-  if (res.submission_id) {
-    let acturalCheckCurl = checkCurl.replace(/\$\{id\}/i, res.submission_id)
-    ;(function check() {
-      exec(acturalCheckCurl, function (err, result, code) {
-        let res = JSON.parse(result)
-        if (res.state == "SUCCESS") {
-          dbInsert({
-            timestamp: Date.now(),
-            runtime: res.status_runtime
-          })
-          console.log(res.status_runtime)
-        } else {
-          setTimeout(check, 200)
-        }
-      })
-    }())
-  }
-})
+function execCurl() {
+  exec(submitCurl, function (err, result, code) {
+    if (err instanceof Error) throw err;
+    let res = JSON.parse(result)
+    if (res.submission_id) {
+      let acturalCheckCurl = checkCurl.replace(/\$\{id\}/i, res.submission_id)
+      ;(function check() {
+        exec(acturalCheckCurl, function (err, result, code) {
+          let res = JSON.parse(result)
+          if (res.state == "SUCCESS") {
+            dbInsert({
+              timestamp: Date.now(),
+              runtime: res.status_runtime
+            })
+            console.log(res.status_runtime)
+          } else {
+            setTimeout(check, 200)
+          }
+        })
+      }())
+    }
+  })
+}
 
 function dbInsert(obj) {
   let url = 'mongodb://localhost:27017/leetcode'
